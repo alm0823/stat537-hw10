@@ -38,7 +38,7 @@ require(semPlot)
 
 \maketitle
 
-{\it Part 1: Classification Trees for the diagnosis of Mild Osteoarthritis using genetic information.} 
+{\it {\bf Part 1}: Classification Trees for the diagnosis of Mild Osteoarthritis using genetic information.} 
 
 {\it In Marshall et al. \url{http://www.sciencedirect.com/science/article/pii/S1063458405001524}, they use logistic regression models to build and then validate (to some degree) a predictor for osteoarthritis/not using a set of genetic markers. Read the paper to answer the following questions.}
 
@@ -46,6 +46,7 @@ require(semPlot)
 
 <<cleanup, warning=FALSE, fig.height=6, out.height='6in', cache=TRUE, include = FALSE>>=
 marshalcomb <- read.csv('marshalcomb.csv', na.strings = -99)
+require(effects) # Effects plot
 
 @
 
@@ -58,16 +59,26 @@ marshalcomb <- read.csv('marshalcomb.csv', na.strings = -99)
 marsh1 <- read.csv("http://dl.dropboxusercontent.com/u/77307195/marshalcomb.csv",header=T)
 View(marsh1)
 summary(marsh1)
+marsh1$D2 <- as.factor(marsh1$D2)
+marsh1$Ethnicity <- as.factor(marsh1$Ethnicity)
 marsh1R<-marsh1[,-c(1,2,3,4,5,6,8)]
+@
+
+<<one.plot>>=
 
 #Fit the model and call it glm1
 
-require(effects)
+glm1 <- glm(D2 ~ G2AN + HSPCA + IL13RA1 + LAMC1 + MAFB + PF4 + TNFAIP6, data = marsh1R, family = binomial)
+
 plot(allEffects(glm1),rescale=F)
 @
 
 \item %2
 {\it They use logit values above or below 0 to predict whether an observation is diseased or not (below equation 1). Explain that choice.}
+
+When the probability of getting the disease is the same as not getting the disease( p=0.5), the logit is equal to 0. So a logit $\lessthan$ zero is when there is a higher probability of not getting a disease, and when there is a higher probability of getting the disease than not getting the disease, logit is \greaterthan zero. 
+
+So if the probability of getting a disease is higher than half, logit is positive and we assign a subject to getting the disease. If the probability of getting a disease is less than half, logit is negative we assign a subject to not getting the disease.
 
 \item %3
 {\it In the section on page 865 ``Reference data set (AD1F2) for the best gene combinations" describe the type of modeling/model selection they are considering. Supplement table 5 contains more details of the results of this process.}
