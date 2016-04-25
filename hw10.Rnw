@@ -83,6 +83,8 @@ So if the probability of getting a disease is higher than half, logit is positiv
 \item %3
 {\it In the section on page 865 ``Reference data set (AD1F2) for the best gene combinations" describe the type of modeling/model selection they are considering. Supplement table 5 contains more details of the results of this process.}
 
+ARE WE SUPPOSED TO DO ANYTHING FOR THIS PROBLEM?
+
 \item %4
 {\it ) Describe what they are doing in the section ``Prospective (Blind) test" starting on page 864. Use terminology from JWHT.}
 
