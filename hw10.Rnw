@@ -38,9 +38,9 @@ require(semPlot)
 
 \maketitle
 
-{\it Part 1: Classification Trees for the diagnosis of Mild Osteoarthritis using genetic information.} 
+{\it Part 1: Classification Trees for the diagnosis of Mild Osteoarthritis using genetic information.}
 
-{\it In Marshall et al. \url{http://www.sciencedirect.com/science/article/pii/S1063458405001524}, they use logistic regression models to build and then validate (to some degree) a predictor for osteoarthritis/not using a set of genetic markers. Read the paper to answer the following questions.}
+{\it In Marshall et al. \verb|http://www.sciencedirect.com/science/article/pii/S1063458405001524|, they use logistic regression models to build and then validate (to some degree) a predictor for osteoarthritis/not using a set of genetic markers. Read the paper to answer the following questions.}
 
 {\it Read the paper, focusing on the statistical aspects of their work.}
 
@@ -55,7 +55,7 @@ marshalcomb <- read.csv('marshalcomb.csv', na.strings = -99)
 {\it Fit their top ranked model from Supplemental Table 5. Make effects plots for the resulting estimated model using the following code.}
 
 <<one>>=
-marsh1 <- read.csv("http://dl.dropboxusercontent.com/u/77307195/marshalcomb.csv",header=T)
+marsh1 <- read.csv("marshalcomb.csv",header=T)
 View(marsh1)
 summary(marsh1)
 marsh1R<-marsh1[,-c(1,2,3,4,5,6,8)]
@@ -81,7 +81,7 @@ plot(allEffects(glm1),rescale=F)
 <<five>>=
 tree1<-rpart(factor(D2)~.,data=marsh1R,cp=0.000000001,minbucket=4)
 
-You can also see the Min CV choice in repeated calls using:
+#You can also see the Min CV choice in repeated calls using:
 ret <- rep(NA, 100)
 for (i in 1:100) {
 tree1 <- rpart(factor(D2) ~ ., data = marsh1R, cp = 1e-09, minbucket = 4)
