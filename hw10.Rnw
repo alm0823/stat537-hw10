@@ -66,6 +66,7 @@ summary(glm1)
 plot(allEffects(glm1),type="link",rows=4,cols=2)
 @
 
+\pagebreak
 \item %2
 {\it They use logit values above or below 0 to predict whether an observation is diseased or not (below equation 1). Explain that choice.}
 
