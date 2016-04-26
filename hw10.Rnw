@@ -42,82 +42,52 @@ require(openintro)
 
 \maketitle
 
-<<<<<<< HEAD
-{\it {\bf Part 1}: Classification Trees for the diagnosis of Mild Osteoarthritis using genetic information.} 
-=======
-{\it Part 1: Classification Trees for the diagnosis of Mild Osteoarthritis using genetic information.}
->>>>>>> 9057e1d25814944fed298a3ac79615ac4c545899
+{\it {\bf Part 1}: Classification Trees for the diagnosis of Mild Osteoarthritis using genetic information.}
 
 {\it In Marshall et al. \verb|http://www.sciencedirect.com/science/article/pii/S1063458405001524|, they use logistic regression models to build and then validate (to some degree) a predictor for osteoarthritis/not using a set of genetic markers. Read the paper to answer the following questions.}
 
 {\it Read the paper, focusing on the statistical aspects of their work.}
 
-<<<<<<< HEAD
-<<cleanup, warning=FALSE, fig.height=6, out.height='6in', cache=TRUE, include = FALSE>>=
-marshalcomb <- read.csv('marshalcomb.csv', na.strings = -99)
-require(effects) # Effects plot
-
-@
-
-=======
->>>>>>> 9057e1d25814944fed298a3ac79615ac4c545899
 \begin{enumerate}
 
 \item %1
 {\it Fit their top ranked model from Supplemental Table 5. Make effects plots for the resulting estimated model using the following code.}
 
-<<one,fig.height=12,fig.width=9,out.height='8in',out.width='6in'>>=
+<<one>>=
 marsh1 <- read.csv("marshalcomb.csv",header=T)
 View(marsh1)
-<<<<<<< HEAD
-summary(marsh1)
 marsh1$D2 <- as.factor(marsh1$D2)
 marsh1$Ethnicity <- as.factor(marsh1$Ethnicity)
-=======
-#summary(marsh1)
->>>>>>> 9057e1d25814944fed298a3ac79615ac4c545899
 marsh1R<-marsh1[,-c(1,2,3,4,5,6,8)]
 @
 
-<<one.plot>>=
-
+<<one.plot,fig.height=12,fig.width=9,out.height='8in',out.width='6in'>>=
 #Fit the model and call it glm1
-<<<<<<< HEAD
-
-glm1 <- glm(D2 ~ G2AN + HSPCA + IL13RA1 + LAMC1 + MAFB + PF4 + TNFAIP6, data = marsh1R, family = binomial)
-
-plot(allEffects(glm1),rescale=F)
-=======
 #Top row in the excel file
 glm1 <- glm(D2 ~ G2AN+IKBKAP+IL13RA1+LAMC1+MAFB+PF4+TNFAIP6, data=marsh1R, family=binomial)
 summary(glm1)
 plot(allEffects(glm1),type="link",rows=4,cols=2)
->>>>>>> 9057e1d25814944fed298a3ac79615ac4c545899
 @
 
 \pagebreak
 \item %2
 {\it They use logit values above or below 0 to predict whether an observation is diseased or not (below equation 1). Explain that choice.}
 
-<<<<<<< HEAD
-When the probability of getting the disease is the same as not getting the disease( p=0.5), the logit is equal to 0. So a logit $\lessthan$ zero is when there is a higher probability of not getting a disease, and when there is a higher probability of getting the disease than not getting the disease, logit is \greaterthan zero. 
+When the probability of getting the disease is the same as not getting the disease( p=0.5), the logit is equal to 0. So a logit $<$ zero is when there is a higher probability of not getting a disease, and when there is a higher probability of getting the disease than not getting the disease, logit is $>$ zero.
 
 So if the probability of getting a disease is higher than half, logit is positive and we assign a subject to getting the disease. If the probability of getting a disease is less than half, logit is negative we assign a subject to not getting the disease.
-=======
-Since \(\mathrm{logit(0.5)=0}\), an individual with a logit value of 0 is equally likely to be diseased or not diseased. Thus, the model implies that an individual with a predicted logit greater than 0 is more likely to be diseased than not diseased.
->>>>>>> 9057e1d25814944fed298a3ac79615ac4c545899
 
 \item %3
 {\it In the section on page 865 ``Reference data set (AD1F2) for the best gene combinations" describe the type of modeling/model selection they are considering. Supplement table 5 contains more details of the results of this process.}
 
-The statistician fit a model for each possible combination of predictor genes. He then made a ROC for each model, and computed the AUC. An AUC closer to 1 indicates that the model does a good job of correctly predicting mild OA and minimizes the misdiagnosis of mild OA. 
+The statistician fit a model for each possible combination of predictor genes. He then made a ROC for each model, and computed the AUC. An AUC closer to 1 indicates that the model does a good job of correctly predicting mild OA and minimizes the misdiagnosis of mild OA.
 
-The models with AUCs above 0.92, which would be classified as having ``Outstanding Discrimination", are bolded in the Supplemental Table 5, and the model with the AUC closest to 1 is chosen. Two models were tied for the highest AUC. The top model listed has fewer predictors than the second model (same AUC for the ROC), and we believe that is why it is chosen to be the top model. 
+The models with AUCs above 0.92, which would be classified as having ``Outstanding Discrimination", are bolded in the Supplemental Table 5, and the model with the AUC closest to 1 is chosen. Two models were tied for the highest AUC. The top model listed has fewer predictors than the second model (same AUC for the ROC), and we believe that is why it is chosen to be the top model.
 
 \item %4
 {\it Describe what they are doing in the section ``Prospective (Blind) test" starting on page 864. Use terminology from JWHT.}
 
-They had an ensemble of 68 models that had an AUC of the ROC $\greaterthan$ 0.9. For each of the models, a prediction was made to classify a person as mild OA or control. If a person is classified as mild OA, a 1 is assigned, if a person is classified as control, a -1 is assigned for each model. The sum of the 68 classifications is calculated and the majority vote from all models determines whether a person's class is mild OA or control.
+They had an ensemble of 68 models that had an AUC of the ROC $>$ 0.9. For each of the models, a prediction was made to classify a person as mild OA or control. If a person is classified as mild OA, a 1 is assigned, if a person is classified as control, a -1 is assigned for each model. The sum of the 68 classifications is calculated and the majority vote from all models determines whether a person's class is mild OA or control.
 
 \item %5
 {\it Fit a classification tree using rpart using all 9 of the genetic variables listed below using {\texttt minbucket}=4 and {\texttt cp}=0.000000001 as in the code below. Prune the tree using the Min CV rule after consulting multiple calls to \texttt{ printcp()} and {\texttt plotcp()}. Do not load mvpart before doing this problem. Discuss the results of your CV process and how you chose your tree size. }
@@ -184,6 +154,8 @@ predict(rpart2MinCV,newdata=satGPA[-train,])
 \subsection*{Problem 1}
 
 <<one, echo=TRUE, eval=FALSE>>=
+@
+<<one.plot, echo=TRUE, eval=FALSE>>=
 @
 
 
