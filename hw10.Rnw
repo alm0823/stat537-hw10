@@ -94,23 +94,29 @@ They had an ensemble of 68 models that had an AUC of the ROC $>$ 0.9. For each o
 
 <<five, cache=TRUE, results='hide'>>=
 set.seed(42362)
-tree1<-rpart(factor(D2)~.,data=marsh1R,cp=0.000000001,minbucket=4)
 
-#You can also see the Min CV choice in repeated calls using:
-ret <- rep(NA, 100)
-for (i in 1:100){
-  tree2 <- rpart(factor(D2)~.,data=marsh1R,cp=0.000000001,minbucket=4)
-  a <- printcp(tree2)
-  ret[i] <- a[min(which(a[, "xerror"] == min(a[, "xerror"]))), "nsplit"]
+# You can also see the Min CV choice in repeated calls using:
+ntrees <- 1000
+ret <- rep(NA, ntrees)
+for (i in 1:ntrees){
+  tree1 <- rpart(factor(D2)~.,data=marsh1R,cp=0.000000001,minbucket=4)
+  a <- printcp(tree1)
+  # Get size of smallest tree with the minimum CV error
+  # Tree size is number of splits + 1
+  ret[i] <- min(a[which(a[, "xerror"] == min(a[, "xerror"])), "nsplit"])+1
 }
 @
 <<five.plot,>>=
 par(mfrow = c(1, 2), mar = c(5.1, 4.1, 7.1, 2.1))
-plotcp(tree1, main = "CV Error vs cp\nfor One Tree\n\n\n")
+plotcp(tree1, main = "CV Error vs cp for One Tree\n\n\n")
 plot(prop.table(table(ret)), lwd = 10, lend = 1, xaxt = 'n',
-     main = "Distribution of the Min-CV Optimal\nNumber of Splits for 100 Trees",
-     ylab = "Proportion", xlab = "Number of Splits")
-axis(1)
+     main = paste("Distribution of the Min-CV Optimal\nTree Size for",
+                  ntrees, "Trees"),
+     ylab = "Proportion", xlab = "Size of Tree",
+     xlim = c(0.5, max(ret)+0.5), ylim = c(0, 0.5))
+text(x = sort(unique(ret)), y = prop.table(table(ret)),
+     labels = signif(prop.table(table(ret)), 3), pos = 3)
+axis(1, at = 1:max(ret))
 @
 
 \item %6
