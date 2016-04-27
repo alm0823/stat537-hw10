@@ -78,35 +78,43 @@ When the probability of getting the disease is the same as not getting the disea
 So if the probability of getting a disease is higher than half, logit is positive and we assign a subject to getting the disease. If the probability of getting a disease is less than half, logit is negative we assign a subject to not getting the disease.
 
 \item %3
-{\it In the section on page 865 ``Reference data set (AD1F2) for the best gene combinations" describe the type of modeling/model selection they are considering. Supplement table 5 contains more details of the results of this process.}
+{\it In the section on page 865 ``Reference data set (AD1F2) for the best gene combinations'' describe the type of modeling/model selection they are considering. Supplement table 5 contains more details of the results of this process.}
 
 The statistician fit a model for each possible combination of predictor genes. He then made a ROC for each model, and computed the AUC. An AUC closer to 1 indicates that the model does a good job of correctly predicting mild OA and minimizes the misdiagnosis of mild OA.
 
-The models with AUCs above 0.92, which would be classified as having ``Outstanding Discrimination", are bolded in the Supplemental Table 5, and the model with the AUC closest to 1 is chosen. Two models were tied for the highest AUC. The top model listed has fewer predictors than the second model (same AUC for the ROC), and we believe that is why it is chosen to be the top model.
+The models with AUCs above 0.92, which would be classified as having ``Outstanding Discrimination'', are bolded in the Supplemental Table 5, and the model with the AUC closest to 1 is chosen. Two models were tied for the highest AUC. The top model listed has fewer predictors than the second model (same AUC for the ROC), and we believe that is why it is chosen to be the top model.
 
 \item %4
-{\it Describe what they are doing in the section ``Prospective (Blind) test" starting on page 864. Use terminology from JWHT.}
+{\it Describe what they are doing in the section ``Prospective (Blind) test'' starting on page 864. Use terminology from JWHT.}
 
 They had an ensemble of 68 models that had an AUC of the ROC $>$ 0.9. For each of the models, a prediction was made to classify a person as mild OA or control. If a person is classified as mild OA, a 1 is assigned, if a person is classified as control, a -1 is assigned for each model. The sum of the 68 classifications is calculated and the majority vote from all models determines whether a person's class is mild OA or control.
 
 \item %5
-{\it Fit a classification tree using rpart using all 9 of the genetic variables listed below using {\texttt minbucket}=4 and {\texttt cp}=0.000000001 as in the code below. Prune the tree using the Min CV rule after consulting multiple calls to \texttt{ printcp()} and {\texttt plotcp()}. Do not load mvpart before doing this problem. Discuss the results of your CV process and how you chose your tree size. }
+{\it Fit a classification tree using rpart using all 9 of the genetic variables listed below using {\texttt minbucket}=4 and {\texttt cp}=0.000000001 as in the code below. Prune the tree using the Min CV rule after consulting multiple calls to \texttt{ printcp()} and {\texttt plotcp()}. Do not load mvpart before doing this problem. Discuss the results of your CV process and how you chose your tree size.}
 
-<<five, results='hide'>>=
+<<five, cache=TRUE, results='hide'>>=
 set.seed(42362)
 tree1<-rpart(factor(D2)~.,data=marsh1R,cp=0.000000001,minbucket=4)
 
 #You can also see the Min CV choice in repeated calls using:
 ret <- rep(NA, 100)
 for (i in 1:100){
-  tree1 <- rpart(factor(D2) ~ ., data = marsh1R, cp = 1e-09, minbucket = 4)
-  a <- printcp(tree1)
-  ret[i] <- min(which(a[, "xerror"] == min(a[, "xerror"])))
+  tree2 <- rpart(factor(D2)~.,data=marsh1R,cp=0.000000001,minbucket=4)
+  a <- printcp(tree2)
+  ret[i] <- a[min(which(a[, "xerror"] == min(a[, "xerror"]))), "nsplit"]
 }
+@
+<<five.plot,>>=
+par(mfrow = c(1, 2), mar = c(5.1, 4.1, 7.1, 2.1))
+plotcp(tree1, main = "CV Error vs cp\nfor One Tree\n\n\n")
+plot(prop.table(table(ret)), lwd = 10, lend = 1, xaxt = 'n',
+     main = "Distribution of the Min-CV Optimal\nNumber of Splits for 100 Trees",
+     ylab = "Proportion", xlab = "Number of Splits")
+axis(1)
 @
 
 \item %6
-{\it Based on these results, choose two different sized trees that could be reasonable based on the different CV selections. Report a plot of your two pruned classification trees using the partykit's plot(as.party(PRUNEDTREENAME)). Discuss the differences in the two trees.}
+{\it Based on these results, choose two different sized trees that could be reasonable based on the different CV selections. Report a plot of your two pruned classification trees using the partykit's \verb|plot(as.party(PRUNEDTREENAME))|. Discuss the differences in the two trees.}
 
 
 \item %7
@@ -164,6 +172,8 @@ predict(rpart2MinCV,newdata=satGPA[-train,])
 \subsection*{Problem 5}
 
 <<five, echo=TRUE, eval=FALSE>>=
+@
+<<five.plot, echo=TRUE, eval=FALSE>>=
 @
 
 \subsection*{Problem 6}
