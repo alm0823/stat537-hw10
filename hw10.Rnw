@@ -35,7 +35,7 @@ require(semPlot)
 require(effects)
 require(partykit)
 require(openintro)
-require(mvpart)
+require(rpart)
 @
 
 \begin{document}
@@ -55,7 +55,7 @@ require(mvpart)
 
 <<one>>=
 marsh1 <- read.csv("marshalcomb.csv",header=T)
-View(marsh1)
+#View(marsh1)
 marsh1$D2 <- as.factor(marsh1$D2)
 marsh1$Ethnicity <- as.factor(marsh1$Ethnicity)
 marsh1R<-marsh1[,-c(1,2,3,4,5,6,8)]
@@ -95,17 +95,6 @@ They had an ensemble of 68 models that had an AUC of the ROC $>$ 0.9. For each o
 The results of our CV process resulted in a tree with two terminal nodes, with {\texttt PF4} being the most important variable in predicting disease presence. Too much weight should not be put on the particuar split chosen on {\texttt PF4} in terms of importance of predicting disease because if the tree was created again, another split or another variable to split on may have been chosen.
 
 We chose the tree size based on the min CV rule. Since the size of tree with the min CV changes each time a tree is generated, it is not reasonable to base the size of the tree decision on the results/output from one tree. Below we plotted the output from one tree, but also summarized the proportion of trees with min CV at each size after fitting 1000 different trees. Most often, a tree of size 2 resulted in the lowest {\texttt xerror}, therefore we decided to use a tree of size 2. (I think I made a tree of size 4...?) We used the min {\texttt cp} based on a tree with 2 splits from the first tree generated, but could have used the similarly found {\texttt cp} from another tree.
-
-<<am, cache=TRUE>>=
-rp <- rpart(as.numeric(D2)~., data=marsh1R, control=rpart.control(minbucket=4, cp=0.000000001))
-
-printcp(rp)
-par(mfrow=c(1,1))
-plotcp((rp))
-
-
-
-@
 
 <<five, cache=TRUE, results='hide'>>=
 set.seed(112)
@@ -153,6 +142,8 @@ plot(as.party(prune2))
 {\it Based on these results, choose two different sized trees that could be reasonable based on the different CV selections. Report a plot of your two pruned trees using the partykit's \verb|plot(as.party(PRUNEDTREENAME))|. Discuss the differences in the two trees.}
 
 Based on the plot showing the rate of min CP occuring for given sizes in 1000 trials, it appears trees of size 6 or 8 had the minimum {\texttt xerror} quite often as well, so we will consider trees of size 6 and 8 in this problem.
+
+The difference in the two trees is that the effect of {\texttt PF4} at or above 6.373 on disease prediction depends on {\texttt IL13RA1} and {\texttt MAFB} when the tree size is 8, which is not shown in the tree pruned to size 6. The variables and splits used for {\texttt PF4} less than 6.373 are the same for trees of sizes 6 and 8.
 
 
 <<six>>=
