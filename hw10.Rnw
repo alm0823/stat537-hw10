@@ -33,9 +33,9 @@ require(polycor)
 require(psych)
 require(semPlot)
 require(effects)
-require(rpart)
 require(partykit)
 require(openintro)
+require(mvpart)
 @
 
 \begin{document}
@@ -87,13 +87,28 @@ The models with AUCs above 0.92, which would be classified as having ``Outstandi
 \item %4
 {\it Describe what they are doing in the section ``Prospective (Blind) test'' starting on page 864. Use terminology from JWHT.}
 
-They had an ensemble of 68 models that had an AUC of the ROC $>$ 0.9. For each of the models, a prediction was made to classify a person as mild OA or control. If a person is classified as mild OA, a 1 is assigned, if a person is classified as control, a -1 is assigned for each model. The sum of the 68 classifications is calculated and the majority vote from all models determines whether a person's class is mild OA or control.
+They had an ensemble of 68 models that had an AUC of the ROC $>$ 0.9. For each of the models, a prediction was made to classify a person as mild OA or control. If a person is classified as mild OA, a 1 is assigned, if a person is classified as control, a -1 is assigned for each model. The sum of the 68 classifications iare calculated and the majority vote from all models determines whether a person's class is mild OA or control.
 
 \item %5
 {\it Fit a classification tree using rpart using all 9 of the genetic variables listed below using {\texttt minbucket}=4 and {\texttt cp}=0.000000001 as in the code below. Prune the tree using the Min CV rule after consulting multiple calls to \texttt{ printcp()} and {\texttt plotcp()}. Do not load mvpart before doing this problem. Discuss the results of your CV process and how you chose your tree size.}
 
+The results of our CV process resulted in a tree with two terminal nodes, with {\texttt PF4} being the most important variable in predicting disease presence. Too much weight should not be put on the particuar split chosen on {\texttt PF4} in terms of importance of predicting disease because if the tree was created again, another split or another variable to split on may have been chosen.
+
+We chose the tree size based on the min CV rule. Since the size of tree with the min CV changes each time a tree is generated, it is not reasonable to base the size of the tree decision on the results/output from one tree. Below we plotted the output from one tree, but also summarized the proportion of trees with min CV at each size after fitting 1000 different trees. Most often, a tree of size 2 resulted in the lowest {\texttt xerror}, therefore we decided to use a tree of size 2. (I think I made a tree of size 4...?) We used the min {\texttt cp} based on a tree with 2 splits from the first tree generated, but could have used the similarly found {\texttt cp} from another tree.
+
+<<am, cache=TRUE>>=
+rp <- rpart(as.numeric(D2)~., data=marsh1R, control=rpart.control(minbucket=4, cp=0.000000001))
+
+printcp(rp)
+par(mfrow=c(1,1))
+plotcp((rp))
+
+
+
+@
+
 <<five, cache=TRUE, results='hide'>>=
-set.seed(42362)
+set.seed(112)
 
 # You can also see the Min CV choice in repeated calls using:
 ntrees <- 1000
@@ -101,6 +116,8 @@ ret <- rep(NA, ntrees)
 for (i in 1:ntrees){
   tree1 <- rpart(factor(D2)~.,data=marsh1R,cp=0.000000001,minbucket=4)
   a <- printcp(tree1)
+  tree2 <- rpart(factor(D2)~.,data=marsh1R,cp=0.000000001,minbucket=4)
+  b <- printcp(tree1)
   # Get size of smallest tree with the minimum CV error
   # Tree size is number of splits + 1
   ret[i] <- min(a[which(a[, "xerror"] == min(a[, "xerror"])), "nsplit"])+1
@@ -119,9 +136,35 @@ text(x = sort(unique(ret)), y = prop.table(table(ret)),
 axis(1, at = 1:max(ret))
 @
 
-\item %6
-{\it Based on these results, choose two different sized trees that could be reasonable based on the different CV selections. Report a plot of your two pruned classification trees using the partykit's \verb|plot(as.party(PRUNEDTREENAME))|. Discuss the differences in the two trees.}
 
+<<mincp>>=
+#min.cp <- order(a[, "xerror"])
+mincp2 <- 0.1
+prune2 <- prune(tree1, cp=mincp2)
+plot(as.party(prune2))
+
+@
+<<mvpart, include = FALSE>>=
+#require(mvpart)
+
+@
+
+\item %6
+{\it Based on these results, choose two different sized trees that could be reasonable based on the different CV selections. Report a plot of your two pruned trees using the partykit's \verb|plot(as.party(PRUNEDTREENAME))|. Discuss the differences in the two trees.}
+
+Based on the plot showing the rate of min CP occuring for given sizes in 1000 trials, it appears trees of size 6 or 8 had the minimum {\texttt xerror} quite often as well, so we will consider trees of size 6 and 8 in this problem.
+
+
+<<six>>=
+mincp6 <- 0.000000002
+prune6 <- prune(tree1, cp=mincp6)
+plot(as.party(prune6))
+
+mincp8 <- 0.028
+prune8 <- prune(tree1, cp=mincp8)
+plot(as.party(prune8))
+
+@
 
 \item %7
 {\it Adjust the following code as needed to make a plot of the predictions from the three models. Use these results to discuss the differences in these approaches/results. I had models called tree1p, tree2p, and glm1.}
