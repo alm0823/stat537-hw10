@@ -36,7 +36,6 @@ require(effects)
 require(partykit)
 require(openintro)
 require(rpart)
-require(caret)
 require(arm)
 
 data(satGPA)
@@ -180,7 +179,7 @@ plot(fits)
 \item %8
 {\it The predictor variables were log10-transformed. Generally discuss how this impacts the tree-based approach vs the GLM approach. You can either undo their transformations and refit models or just discuss the impacts based on thinking about how the models work and why they might have done this transformation initially.}
 
-<<try.it, include=FALSE>>=
+<<try.it, cache=TRUE, include=FALSE>>=
 ex <- 10^(marsh1R[,-1])
 marsh1R.ex<-data.frame(cbind(D2=marsh1R[,1], ex))
 
@@ -302,7 +301,7 @@ names.vect <- c("csig0.95", "csig0.9", "mincv", "1se")
 table <- rbind(names.vect, vect)
 rownames(table) <- c("Pruning Method", "CV Error")
 
-print(xtable(table))
+print(xtable(table), include.colnames = FALSE)
 @
 
 The CV errors are all quite similar, although since the CV error is the smallest using the minCV rule for pruning, this appears to be the best. Next best is the conditional tree using the 0.9 significance threshold, followed by the conditional tree using the 0.95 significance threshold, and the tree found using the 1se pruning rule did the worst in terms of CV error.
@@ -319,9 +318,6 @@ When using {\texttt ctree} there is an option to set the significance threshold 
 @
 <<one.plot, echo=TRUE, eval=FALSE>>=
 @
-
-
-\subsection*{Problem 4}
 
 \subsection*{Problem 5}
 
@@ -348,12 +344,16 @@ When using {\texttt ctree} there is an option to set the significance threshold 
 @
 <<try2, echo=TRUE, eval=FALSE>>=
 @
+<<glm.try, echo=TRUE, eval=FALSE>>=
+@
 
 \subsection*{Problem 9}
 
-<<plots, echo=TRUE, eval=FALSE>>=
+<<ten, echo=TRUE, eval=FALSE>>=
 @
 <<sat, echo=TRUE, eval=FALSE>>=
+@
+<<plots, echo=TRUE, eval=FALSE>>=
 @
 
 \subsection*{Problem 10}
