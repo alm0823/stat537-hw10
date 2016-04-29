@@ -75,7 +75,7 @@ plot(allEffects(glm1),type="link",rows=4,cols=2)
 \item %2
 {\it They use logit values above or below 0 to predict whether an observation is diseased or not (below equation 1). Explain that choice.}
 
-When the probability of getting the disease is the same as not getting the disease( p=0.5), the logit is equal to 0. So a logit $<$ zero is when there is a higher probability of not getting a disease, and when there is a higher probability of getting the disease than not getting the disease, logit is $>$ zero.
+When the probability of getting the disease is the same as not getting the disease ($p=0.5$), the logit is equal to 0. So a logit $<$ zero is when there is a higher probability of not getting a disease, and when there is a higher probability of getting the disease than not getting the disease, logit is $>$ zero.
 
 So if the probability of getting a disease is higher than half, logit is positive and we assign a subject to getting the disease. If the probability of getting a disease is less than half, logit is negative we assign a subject to not getting the disease.
 
@@ -89,14 +89,14 @@ The models with AUCs above 0.92, which would be classified as having ``Outstandi
 \item %4
 {\it Describe what they are doing in the section ``Prospective (Blind) test'' starting on page 864. Use terminology from JWHT.}
 
-They had an ensemble of 68 models that had an AUC of the ROC $>$ 0.9. For each of the models, a prediction was made to classify a person as mild OA or control. If a person is classified as mild OA, a 1 is assigned, if a person is classified as control, a -1 is assigned for each model. The sum of the 68 classifications iare calculated and the majority vote from all models determines whether a person's class is mild OA or control.
+They had an ensemble of 68 models that had an AUC of the ROC $>$ 0.9. For each of the models, a prediction was made to classify a person as mild OA or control. If a person is classified as mild OA, a 1 is assigned, if a person is classified as control, a -1 is assigned for each model. The sum of the 68 classifications are calculated and the majority vote from all models determines whether a person's class is mild OA or control.
 
 \item %5
-{\it Fit a classification tree using rpart using all 9 of the genetic variables listed below using {\texttt minbucket}=4 and {\texttt cp}=0.000000001 as in the code below. Prune the tree using the Min CV rule after consulting multiple calls to \texttt{ printcp()} and {\texttt plotcp()}. Do not load mvpart before doing this problem. Discuss the results of your CV process and how you chose your tree size.}
+{\it Fit a classification tree using rpart using all 9 of the genetic variables listed below using {\texttt minbucket}=4 and {\texttt cp}=0.000000001 as in the code below. Prune the tree using the Min CV rule after consulting multiple calls to \texttt{printcp()} and {\texttt plotcp()}. Do not load mvpart before doing this problem. Discuss the results of your CV process and how you chose your tree size.}
 
 The results of our CV process resulted in a tree with two terminal nodes, with {\texttt PF4} being the most important variable in predicting disease presence. Too much weight should not be put on the particuar split chosen on {\texttt PF4} in terms of importance of predicting disease because if the tree was created again, another split or another variable to split on may have been chosen.
 
-We chose the tree size based on the min CV rule. Since the size of tree with the min CV changes each time a tree is generated, it is not reasonable to base the size of the tree decision on the results/output from one tree. Below we plotted the output from one tree, but also summarized the proportion of trees with min CV at each size after fitting 1000 different trees. Most often, a tree of size 2 resulted in the lowest {\texttt xerror}, therefore we decided to use a tree of size 2. (I think I made a tree of size 4...?) We used the min {\texttt cp} based on a tree with 2 splits from the first tree generated, but could have used the similarly found {\texttt cp} from another tree.
+We chose the tree size based on the min CV rule. Since the size of tree with the min CV changes each time a tree is generated, it is not reasonable to base the size of the tree decision on the results/output from one tree. Below we plotted the output from one tree, but also summarized the proportion of trees with min CV at each size after fitting 1000 different trees. Most often, a tree of size 2 resulted in the lowest {\texttt xerror}, therefore we decided to use a tree of size 2. We used the min {\texttt cp} based on a tree with 2 splits from the first tree generated, but could have used the similarly found {\texttt cp} from another tree.
 
 <<five, cache=TRUE, results='hide'>>=
 set.seed(112)
@@ -129,11 +129,10 @@ axis(1, at = 1:max(ret))
 
 
 <<mincp>>=
-#min.cp <- order(a[, "xerror"])
+min.cp <- a[order(a[, "xerror"])[1], "CP"] # Based on last tree fit, gives a tree with 6 nodes
 mincp2 <- 0.1
 prune2 <- prune(tree1, cp=mincp2)
 plot(as.party(prune2))
-
 @
 <<mvpart, include = FALSE>>=
 #require(mvpart)
@@ -149,11 +148,11 @@ The difference in the two trees is that the effect of {\texttt PF4} at or above 
 
 
 <<six>>=
-mincp6 <- 0.000000002
+mincp6 <- 0.028
 prune6 <- prune(tree1, cp=mincp6)
 plot(as.party(prune6))
 
-mincp8 <- 0.028
+mincp8 <- 0.000000002
 prune8 <- prune(tree1, cp=mincp8)
 plot(as.party(prune8))
 
@@ -162,16 +161,17 @@ plot(as.party(prune8))
 \item %7
 {\it Adjust the following code as needed to make a plot of the predictions from the three models. Use these results to discuss the differences in these approaches/results. I had models called tree1p, tree2p, and glm1.}
 
-WHY DOES MARK HAVE A GLM OBJECT AND GLM CODE IN HERE? This makes me think we should have a glm object as well. Any thoughts?
+%WHY DOES MARK HAVE A GLM OBJECT AND GLM CODE IN HERE? This makes me think we should have a glm object as well. Any thoughts?
+% I think he's trying to illustrate a parallel since we're predicting binary responses...?
 
 We are fitting a binomial model, and so the measures on the side panels indicate the predicted probability of disease. As the size increases, the distributions of the probabilities of disease have a more continuous look, versus the binary for size 2. As the size increases, the probability of disease is less separated. For example, for size 2, we see two groupings of probabilities of disease, at 0 and at (or near) 1. For size 6, we see the six groups clustered into two, but the clusters are closer together than with size 2. One cluster (no disease) is from 0 to around 0.3 and the other is around 0.8 to 1 (disease). Again with size 8, we see two main clusters of the eight groups of predicted probabilities, but the highest probability in the no disease cluster is around 0.4 while the lowest probability in the disease cluster is around 0.7.
 
 In summary, as size increases, for binomial outcomes, the range of predicted probabilities increases, and the distance between the min predicted probability of success and the max predicted probability of failure decreases.
 
--$>$ Possibly disucess in terms of ``decrease in purity".
+%-$>$ Possibly disucess in terms of ``decrease in purity".
 
-<<seven>>=
-fits<-data.frame(Size2=predict(prune2)[,2], Size6=predict(prune6)[,2],Size8=predict(prune8)[,2])
+<<seven,fig.height=6>>=
+fits<-data.frame(Size2=jitter(predict(prune2)[,2]), Size6=jitter(predict(prune6)[,2]),Size8=jitter(predict(prune8)[,2]))
 plot(fits)
 @
 
@@ -235,6 +235,8 @@ plotcp(rpart_full)
 <<five, echo=TRUE, eval=FALSE>>=
 @
 <<five.plot, echo=TRUE, eval=FALSE>>=
+@
+<<mincp, echo=TRUE, eval=FALSE>>=
 @
 
 \subsection*{Problem 6}
