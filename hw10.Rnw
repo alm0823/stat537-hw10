@@ -179,6 +179,41 @@ plot(fits)
 \item %8
 {\it The predictor variables were log10-transformed. Generally discuss how this impacts the tree-based approach vs the GLM approach. You can either undo their transformations and refit models or just discuss the impacts based on thinking about how the models work and why they might have done this transformation initially.}
 
+<<try.it, include=FALSE>>=
+ex <- 10^(marsh1R[,-1])
+marsh1R.ex<-data.frame(cbind(D2=marsh1R[,1], ex))
+
+
+set.seed(112)
+
+# You can also see the Min CV choice in repeated calls using:
+ntrees.ex <- 1000
+ret.ex <- rep(NA, ntrees.ex)
+for (i in 1:ntrees.ex){
+  tree1.ex <- rpart(factor(D2)~.,data=marsh1R.ex,cp=0.000000001,minbucket=4)
+  a.ex <- printcp(tree1.ex)
+    # Get size of smallest tree with the minimum CV error
+  # Tree size is number of splits + 1
+  ret.ex[i] <- min(a.ex[which(a.ex[, "xerror"] == min(a.ex[, "xerror"])), "nsplit"])+1
+}
+@
+
+<<try2>>=
+
+par(mfrow = c(1, 2), mar = c(5.1, 4.1, 7.1, 2.1))
+plotcp(tree1.ex, main = "CV Error vs cp for One Tree\n\n\n")
+plot(prop.table(table(ret.ex)), lwd = 10, lend = 1, xaxt = 'n',
+     main = paste("Distribution of the Min-CV Optimal\nTree Size for",
+                  ntrees.ex, "Trees"),
+     ylab = "Proportion", xlab = "Size of Tree",
+     xlim = c(0.5, max(ret.ex)+0.5), ylim = c(0, 0.5))
+text(x = sort(unique(ret.ex)), y = prop.table(table(ret.ex)),
+     labels = signif(prop.table(table(ret.ex)), 3), pos = 3)
+axis(1, at = 1:max(ret.ex))
+
+
+@
+
 The tree based approach is {\it not} invariant to changes in the scale of the predictors. Therefore, when the log10 transformation is done on the predictor variables, the resulting trees, and therefore classification or prediction will also change.
 
 Using the glm approach, rather than the slope coefficient to the log10 transformed variable being the predicted probability (in the binomial response case), the 10 $\times$ the slope coefficient to the log10 transformed variable is the predicted probability of disease.
@@ -298,10 +333,8 @@ When using {\texttt ctree} there is an option to set the significance threshold 
 \subsection*{Problem 9}
 
 <<plots, echo=TRUE, eval=FALSE>>=
-
 @
 <<sat, echo=TRUE, eval=FALSE>>=
-
 @
 
 \subsection*{Problem 10}
