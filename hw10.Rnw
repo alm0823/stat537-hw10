@@ -36,6 +36,8 @@ require(effects)
 require(partykit)
 require(openintro)
 require(rpart)
+
+data(satGPA)
 @
 
 \begin{document}
@@ -186,13 +188,20 @@ The glm approach produces estimates that are invariant to log10 transformations 
 {\bf Part 2 :} {\it Use the following code to identify an optimal predictive model for first year college GPAs. The following code will split out half the observations into a training data set and fit two different conditional inference trees using all available predictors. It also fits a recursive partitioning tree. }
 
 <<ten>>=
-require(openintro)
-data(satGPA)
-
 set.seed(123456) #So that you can repeat the running of the code and get the same results
 train=sample(1:1000,size=500)
 ctree1<-ctree(FYGPA~.,data=satGPA[train,],mincriterion=0.95)
 ctree2<-ctree(FYGPA~.,data=satGPA[train,],mincriterion=0.9)
+
+plot(ctree1)
+plot(ctree2)
+
+table(predict(ctree1),satGPA[train,]$FYGPA)
+@
+
+
+<<another>>=
+summary(ctree1)
 rpart_full<-rpart(FYGPA~.,data=satGPA[train,],cp=0.00000001)
 printcp(rpart_full)
 par(mfrow=c(1,1))
@@ -202,13 +211,6 @@ plotcp(rpart_full)
 \item %9
 {\it ) Prune the tree using the 1SE and Min CV rules (either from a single 10-fold CV run or select a tree size for each as a consensus that you build from multiple CV runs). }
 
-<<next>>=
-#Do your own pruning and put results into rpart21SE and rpart2MinCV
-predict(ctree1,newdata=satGPA[-train,])
-predict(ctree2,newdata=satGPA[-train,])
-predict(rpart21SE,newdata=satGPA[-train,])
-predict(rpart2MinCV,newdata=satGPA[-train,])
-@
 
 \item %10
 {\it Calculate and compare the validation error for the 4 models using the withheld responses and discuss the choice of significance threshold and CV rule.}
