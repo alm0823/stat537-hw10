@@ -37,6 +37,7 @@ require(partykit)
 require(openintro)
 require(rpart)
 require(caret)
+require(arm)
 
 data(satGPA)
 @
@@ -95,7 +96,7 @@ They had an ensemble of 68 models that had an AUC of the ROC $>$ 0.9. For each o
 \item %5
 {\it Fit a classification tree using rpart using all 9 of the genetic variables listed below using {\texttt minbucket}=4 and {\texttt cp}=0.000000001 as in the code below. Prune the tree using the Min CV rule after consulting multiple calls to \texttt{printcp()} and {\texttt plotcp()}. Do not load mvpart before doing this problem. Discuss the results of your CV process and how you chose your tree size.}
 
-The results of our CV process resulted in a tree with two terminal nodes, with {\texttt PF4} being the most important variable in predicting disease presence. Too much weight should not be put on the particuar split chosen on {\texttt PF4} in terms of importance of predicting disease because if the tree was created again, another split or another variable to split on may have been chosen.
+The results of our CV process resulted in a tree with two terminal nodes, with {\texttt PF4} being the most important variable in predicting disease presence. Too much weight should not be put on the particular split chosen on {\texttt PF4} in terms of importance of predicting disease because if the tree was created again, another split or another variable to split on may have been chosen.
 
 We chose the tree size based on the min CV rule. Since the size of tree with the min CV changes each time a tree is generated, it is not reasonable to base the size of the tree decision on the results/output from one tree. Below we plotted the output from one tree, but also summarized the proportion of trees with min CV at each size after fitting 1000 different trees. Most often, a tree of size 2 resulted in the lowest {\texttt xerror}, therefore we decided to use a tree of size 2. We used the min {\texttt cp} based on a tree with 2 splits from the first tree generated, but could have used the similarly found {\texttt cp} from another tree.
 
@@ -143,7 +144,7 @@ plot(as.party(prune2))
 \item %6
 {\it Based on these results, choose two different sized trees that could be reasonable based on the different CV selections. Report a plot of your two pruned trees using the partykit's \verb|plot(as.party(PRUNEDTREENAME))|. Discuss the differences in the two trees.}
 
-Based on the plot showing the rate of min CP occuring for given sizes in 1000 trials, it appears trees of size 6 or 8 had the minimum {\texttt xerror} quite often as well, so we will consider trees of size 6 and 8 in this problem.
+Based on the plot showing the rate of min CP occurring for given sizes in 1000 trials, it appears trees of size 6 or 8 had the minimum {\texttt xerror} quite often as well, so we will consider trees of size 6 and 8 in this problem.
 
 The difference in the two trees is that the effect of {\texttt PF4} at or above 6.373 on disease prediction depends on {\texttt IL13RA1} and {\texttt MAFB} when the tree size is 8, which is not shown in the tree pruned to size 6. The variables and splits used for {\texttt PF4} less than 6.373 are the same for trees of sizes 6 and 8.
 
@@ -165,7 +166,7 @@ plot(as.party(prune8))
 %WHY DOES MARK HAVE A GLM OBJECT AND GLM CODE IN HERE? This makes me think we should have a glm object as well. Any thoughts?
 % I think he's trying to illustrate a parallel since we're predicting binary responses...?
 
-We are fitting a binomial model, and so the measures on the side panels indicate the predicted probability of disease. As the size increases, the distributions of the probabilities of disease have a more continuous look, versus the binary for size 2. As the size increases, the probability of disease is less separated. For example, for size 2, we see two groupings of probabilities of disease, at 0 and at (or near) 1. For size 6, we see the six groups clustered into two, but the clusters are closer together than with size 2. One cluster (no disease) is from 0 to around 0.3 and the other is around 0.8 to 1 (disease). Again with size 8, we see two main clusters of the eight groups of predicted probabilities, but the highest probability in the no disease cluster is around 0.4 while the lowest probability in the disease cluster is around 0.7.
+We are fitting a binomial model, and so the measures on the side panels indicate the predicted probability of disease. As the size increases, the distributions of the probabilities of disease have a more continuous look, versus the binary for size 2. As the size increases, the probability of disease is less separated. As a side note, another way to think of the ``separation" discussed is in terms of ``purity", which the text uses. More separation would be more pure. For example, for size 2, we see two groupings of probabilities of disease, at 0 and at (or near) 1. For size 6, we see the six groups clustered into two, but the clusters are closer together than with size 2. One cluster (no disease) is from 0 to around 0.3 and the other is around 0.8 to 1 (disease). Again with size 8, we see two main clusters of the eight groups of predicted probabilities, but the highest probability in the no disease cluster is around 0.4 while the lowest probability in the disease cluster is around 0.7.
 
 In summary, as size increases, for binomial outcomes, the range of predicted probabilities increases, and the distance between the min predicted probability of success and the max predicted probability of failure decreases.
 
@@ -214,9 +215,22 @@ axis(1, at = 1:max(ret.ex))
 
 @
 
-The tree based approach is {\it not} invariant to changes in the scale of the predictors. Therefore, when the log10 transformation is done on the predictor variables, the resulting trees, and therefore classification or prediction will also change.
+The tree based approach is invariant to changes in the scale of the predictors (however, this is not true with conditional pruning). Therefore, when the log10 transformation is done on the predictor variables, the resulting trees, and therefore classification or prediction did not change much. We did 1000 more simulations using the backtransformed predictors, and the distribution of optimal tree size was very similar to when using the transformed predictors. While a formal test was not done, the proportions are similar enough to suggest the differences observed may be due to random chance.
 
-Using the glm approach, rather than the slope coefficient to the log10 transformed variable being the predicted probability (in the binomial response case), the 10 $\times$ the slope coefficient to the log10 transformed variable is the predicted probability of disease.
+It makes sense that the tree approach is invariant to the log10 transformation because the log10 transformation is monotone. The tree finds splits by searching along the range of the predictor and looking for the split that is the most pure. It does not matter what scale the predictor is on because the purest split on any scale will partition the observations in the same way.
+
+<<glm.try>>=
+glm1.ex <- glm(as.factor(as.numeric(D2)-1) ~ G2AN+IKBKAP+IL13RA1+LAMC1+MAFB+PF4+TNFAIP6, data=marsh1R.ex, family=binomial)
+#summary(glm1.ex)
+#plot(allEffects(glm1.ex),type="link",rows=4,cols=2)
+
+par(mfrow=c(1,1))
+plot(invlogit(predict(glm1)), invlogit(predict(glm1.ex)), xlab = "LOG10(x) Predictions", ylab = "x Predictions")
+abline(a=0,b=1)
+
+@
+
+The predicted probability of disease changes depending on whether the explanatory variables are log10 transformed or not because the points do not lie on the line. This is opposite of what we thought was true.
 
 
 {\bf Part 2 :} {\it Use the following code to identify an optimal predictive model for first year college GPAs. The following code will split out half the observations into a training data set and fit two different conditional inference trees using all available predictors. It also fits a recursive partitioning tree. }
@@ -291,9 +305,9 @@ rownames(table) <- c("Pruning Method", "CV Error")
 print(xtable(table))
 @
 
-The CV errors are all quite similar, although since the CV error is the smallest using the minCV rule for pruning, this appears to be the best. Next best is the conditional tree using the 0.9 significance threshold, follwed by the conditional tree usin gthe 0.95 significance threshold, and the tree found using the 1se pruning rule did the worst in terms of CV error.
+The CV errors are all quite similar, although since the CV error is the smallest using the minCV rule for pruning, this appears to be the best. Next best is the conditional tree using the 0.9 significance threshold, followed by the conditional tree using the 0.95 significance threshold, and the tree found using the 1se pruning rule did the worst in terms of CV error.
 
-When using {\texttt ctree} there is an option to set the significance threshold for the premutation test to see if the next split does better than a random split. The tree stops when the test results in a decision of failing to reject that the next split is a random split. In the table, under {\texttt csig0.9}, we see a lower CV error than under {\texttt csig0.95} because with the lower significance threshold, we reject more often, meaning that the tree will be larger. So in this case, the larger tree did slightly better in terms of CV error than the smaller tree, but not by much.
+When using {\texttt ctree} there is an option to set the significance threshold for the permutation test to see if the next split does better than a random split. The tree stops when the test results in a decision of failing to reject that the next split is a random split. In the table, under {\texttt csig0.9}, we see a lower CV error than under {\texttt csig0.95} because with the lower significance threshold, we reject more often, meaning that the tree will be larger. So in this case, the larger tree did slightly better in terms of CV error than the smaller tree, but not by much.
 \end{enumerate}
 
 \pagebreak
@@ -329,6 +343,11 @@ When using {\texttt ctree} there is an option to set the significance threshold 
 @
 
 \subsection*{Problem 8}
+
+<<try.it, echo=TRUE, eval=FALSE>>=
+@
+<<try2, echo=TRUE, eval=FALSE>>=
+@
 
 \subsection*{Problem 9}
 
