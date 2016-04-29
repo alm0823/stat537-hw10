@@ -248,13 +248,17 @@ mf2 <- mean((satGPA[-train,]$FYGPA-pred.full2)^2)
 
 vect <- round(c(mc1,mc2,mf1,mf2),3)
 
-names.vect <- c("ctree1", "ctree2", "mincv", "1se")
+names.vect <- c("csig0.95", "csig0.9", "mincv", "1se")
 
 table <- rbind(names.vect, vect)
 rownames(table) <- c("Pruning Method", "CV Error")
 
 print(xtable(table))
 @
+
+The CV errors are all quite similar, although since the CV error is the smallest using the minCV rule for pruning, this appears to be the best. Next best is the conditional tree using the 0.9 significance threshold, follwed by the conditional tree usin gthe 0.95 significance threshold, and the tree found using the 1se pruning rule did the worst in terms of CV error.
+
+When using {\texttt ctree} there is an option to set the significance threshold for the premutation test to see if the next split does better than a random split. The tree stops when the test results in a decision of failing to reject that the next split is a random split. In the table, under {\texttt csig0.9}, we see a lower CV error than under {\texttt csig0.95} because with the lower significance threshold, we reject more often, meaning that the tree will be larger. So in this case, the larger tree did slightly better in terms of CV error than the smaller tree, but not by much.
 \end{enumerate}
 
 \pagebreak
@@ -281,6 +285,9 @@ print(xtable(table))
 
 \subsection*{Problem 6}
 
+<<six, echo=TRUE, eval=FALSE>>=
+@
+
 \subsection*{Problem 7}
 
 <<seven, echo=TRUE, eval=FALSE>>=
@@ -290,9 +297,16 @@ print(xtable(table))
 
 \subsection*{Problem 9}
 
+<<plots, echo=TRUE, eval=FALSE>>=
+
+@
+<<sat, echo=TRUE, eval=FALSE>>=
+
+@
+
 \subsection*{Problem 10}
 
-<<ten, echo=TRUE, eval=FALSE>>=
+<<valid, echo=TRUE, eval=FALSE>>=
 @
 
 \end{document}
