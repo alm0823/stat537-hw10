@@ -192,8 +192,8 @@ train=sample(1:1000,size=500)
 ctree1<-ctree(FYGPA~.,data=satGPA[train,],mincriterion=0.95)
 ctree2<-ctree(FYGPA~.,data=satGPA[train,],mincriterion=0.9)
 
-set.seed(111)
-split.data.frame(satGPA, size = dim(satGPA)[1])
+#set.seed(111)
+#split.data.frame(satGPA, size = dim(satGPA)[1])
 
 
 plot(ctree1)
@@ -204,7 +204,7 @@ plot(ctree2)
 
 
 \item %9
-{\it ) Prune the tree using the 1SE and Min CV rules (either from a single 10-fold CV run or select a tree size for each as a consensus that you build from multiple CV runs). }
+{\it Prune the tree using the 1SE and Min CV rules (either from a single 10-fold CV run or select a tree size for each as a consensus that you build from multiple CV runs). }
 
 <<sat, include = FALSE>>=
 summary(ctree1)
@@ -217,8 +217,8 @@ mincp.full <- min(printcp(rpart_full)[,"xerror"])
 #1se says size 4
 se1.full <- 0.0179
 
-full1 <- prune(rpart_full, cp = 0.71)
-full2 <- prune(rpart_full, cp = 0.018)
+full1 <- prune(rpart_full, cp = 0.01)
+full2 <- prune(rpart_full, cp = 0.02)
 
 @
 
@@ -235,6 +235,26 @@ plot(as.party(full2))
 \item %10
 {\it Calculate and compare the validation error for the 4 models using the withheld responses and discuss the choice of significance threshold and CV rule.}
 
+<<valid, results = 'asis'>>=
+pred.ctree1 <- predict(ctree1, newdata=satGPA[-train,])
+pred.ctree2 <- predict(ctree2, newdata=satGPA[-train,])
+pred.full1 <- predict(full1, newdata=satGPA[-train,])
+pred.full2 <- predict(full2, newdata=satGPA[-train,])
+
+mc1 <- mean((satGPA[-train,]$FYGPA-pred.ctree1)^2)
+mc2 <- mean((satGPA[-train,]$FYGPA-pred.ctree2)^2)
+mf1 <- mean((satGPA[-train,]$FYGPA-pred.full1)^2)
+mf2 <- mean((satGPA[-train,]$FYGPA-pred.full2)^2)
+
+vect <- round(c(mc1,mc2,mf1,mf2),3)
+
+names.vect <- c("ctree1", "ctree2", "mincv", "1se")
+
+table <- rbind(names.vect, vect)
+rownames(table) <- c("Pruning Method", "CV Error")
+
+print(xtable(table))
+@
 \end{enumerate}
 
 \pagebreak
