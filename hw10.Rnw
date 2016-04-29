@@ -160,8 +160,14 @@ plot(as.party(prune8))
 \item %7
 {\it Adjust the following code as needed to make a plot of the predictions from the three models. Use these results to discuss the differences in these approaches/results. I had models called tree1p, tree2p, and glm1.}
 
+WHY DOES MARK HAVE A GLM OBJECT AND GLM CODE IN HERE? This makes me think we should have a glm object as well. Any thoughts?
+
+We are fitting a binomial model, and so the measures on the side panels indicate the predicted probability of disease. As the size increases, the distributions of the probabilities of disease have a more continuous look, versus the binary for size 2. As the size increases, the probability of disease is less separated. For example, for size 2, we see two groupings of probabilities of disease, at 0 and at (or near) 1. For size 6, we see the six groups clustered into two, but the clusters are closer together than with size 2. One cluster (no disease) is from 0 to around 0.3 and the other is around 0.8 to 1 (disease). Again with size 8, we see two main clusters of the eight groups of predicted probabilities, but the highest probability in the no disease cluster is around 0.4 while the lowest probability in the disease cluster is around 0.7.
+
+In summary, as size increases, for binomial outcomes, the range of predicted probabilities increases, and the distance between the min predicted probability of success and the max predicted probability of failure decreases.
+
 <<seven>>=
-fits<-data.frame(RPARTTREE1=predict(tree1p)[,2], RPARTTREE2=predict(tree2p)[,2],GLM1=predict(glm1,type="response"))
+fits<-data.frame(Size2=predict(prune2)[,2], Size6=predict(prune6)[,2],Size8=predict(prune8)[,2])
 plot(fits)
 @
 
