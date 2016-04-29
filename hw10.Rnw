@@ -166,6 +166,8 @@ We are fitting a binomial model, and so the measures on the side panels indicate
 
 In summary, as size increases, for binomial outcomes, the range of predicted probabilities increases, and the distance between the min predicted probability of success and the max predicted probability of failure decreases.
 
+-$>$ Possibly disucess in terms of ``decrease in purity".
+
 <<seven>>=
 fits<-data.frame(Size2=predict(prune2)[,2], Size6=predict(prune6)[,2],Size8=predict(prune8)[,2])
 plot(fits)
@@ -174,15 +176,17 @@ plot(fits)
 \item %8
 {\it The predictor variables were log10-transformed. Generally discuss how this impacts the tree-based approach vs the GLM approach. You can either undo their transformations and refit models or just discuss the impacts based on thinking about how the models work and why they might have done this transformation initially.}
 
+The tree based approach is {\it not} invariant to changes in the scale of the predictors. Therefore, when the log10 transformation is done on the predictor variables, the resulting trees will also change.
+
+The glm approach produces estimates that are invariant to log10 transformations of the predictor variables, athough the se(estimates) may change depending on the validity of the assumptions.
+
+-$>$ Kenny, could you verify?
+
+
 {\bf Part 2 :} {\it Use the following code to identify an optimal predictive model for first year college GPAs. The following code will split out half the observations into a training data set and fit two different conditional inference trees using all available predictors. It also fits a recursive partitioning tree. }
 
-\item %9
-{\it ) Prune the tree using the 1SE and Min CV rules (either from a single 10-fold CV run or select a tree size for each as a consensus that you build from multiple CV runs). }
-
-\item %10
-{\it Calculate and compare the validation error for the 4 models using the withheld responses and discuss the choice of significance threshold and CV rule.}
-
 <<ten>>=
+require(openintro)
 data(satGPA)
 
 set.seed(123456) #So that you can repeat the running of the code and get the same results
@@ -190,15 +194,24 @@ train=sample(1:1000,size=500)
 ctree1<-ctree(FYGPA~.,data=satGPA[train,],mincriterion=0.95)
 ctree2<-ctree(FYGPA~.,data=satGPA[train,],mincriterion=0.9)
 rpart_full<-rpart(FYGPA~.,data=satGPA[train,],cp=0.00000001)
-printcp(rpart2)
-plotcp(rpart2)
+printcp(rpart_full)
+par(mfrow=c(1,1))
+plotcp(rpart_full)
+@
 
+\item %9
+{\it ) Prune the tree using the 1SE and Min CV rules (either from a single 10-fold CV run or select a tree size for each as a consensus that you build from multiple CV runs). }
+
+<<next>>=
 #Do your own pruning and put results into rpart21SE and rpart2MinCV
 predict(ctree1,newdata=satGPA[-train,])
 predict(ctree2,newdata=satGPA[-train,])
 predict(rpart21SE,newdata=satGPA[-train,])
 predict(rpart2MinCV,newdata=satGPA[-train,])
 @
+
+\item %10
+{\it Calculate and compare the validation error for the 4 models using the withheld responses and discuss the choice of significance threshold and CV rule.}
 
 \end{enumerate}
 
